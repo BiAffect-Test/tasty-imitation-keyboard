@@ -205,7 +205,7 @@ class LanguageSettingsViewController: UIViewController, UITableViewDataSource, U
 
     }
 
-    func toggleSetting(_ sender: UISwitch) {
+    @objc func toggleSetting(_ sender: UISwitch) {
         if let cell = sender.superview as? UITableViewCell {
             if let indexPath = self.tableView.indexPath(for: cell) {
                 let descriptor = self.settingsList[(indexPath as NSIndexPath).section].1[(indexPath as NSIndexPath).row]

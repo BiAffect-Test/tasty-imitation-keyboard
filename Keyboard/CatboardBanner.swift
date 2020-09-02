@@ -124,7 +124,7 @@ class CatboardBanner: SuggestionView {
                 let firstButton = buttons[0]
                 let widthConstraint = NSLayoutConstraint(item: firstButton, attribute: .width, relatedBy: .equal, toItem: button, attribute: .width, multiplier: 1.0, constant: 1)
 
-                widthConstraint.priority = 800
+                widthConstraint.priority = UILayoutPriority(rawValue: 800)
                 self.addConstraint(widthConstraint)
 
             }
