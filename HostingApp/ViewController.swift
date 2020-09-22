@@ -10,81 +10,157 @@ import UIKit
 
 class HostingAppViewController: UIViewController {
     
-    @IBOutlet var stats: UILabel?
+//    var textInput: UITextInput
+//    var textInputMode: UITextInputMode
     
+    let myTextField: UITextField = {
+        let textField = UITextField()
+        textField.backgroundColor = .lightGray //Just so you can see it
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+
+    let myLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Label text" //You may want to set this to something else to start with
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    let myButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Press me", for: .normal)
+        button.setTitleColor(UIColor.blue, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
+    
+//    override var scheduledActivityDataSource: SBAScheduledActivityDataSource {
+//        return Smart4SUREScheduledActivityManager.sharedManager
+//    }
+//
+//    override func viewDidLoad() {
+//        super.viewDidLoad()
+//
+//        let AlertOnce = UserDefaults.standard
+//        if(!AlertOnce.bool(forKey: "oneTimeAlert")){
+//
+//            let alert = UIAlertController(title: "Install BiAffect keyboard", message: "Please follow the directions listed under 'Keyboard Instructions' to install the BiAffect keyboard on your iPhone.", preferredStyle: UIAlertControllerStyle.alert)
+//
+//            let DoNotShowAgainAction = UIAlertAction(title: "Do it now", style: UIAlertActionStyle.cancel) { (action:UIAlertAction) in
+//
+//                AlertOnce.set(true , forKey: "oneTimeAlert")
+//                AlertOnce.synchronize()
+//                self.performSegue(withIdentifier: "backToSignIn", sender: self)
+//
+//            }
+//
+//            let cancelAction = UIAlertAction(title: "Remind me later", style: UIAlertActionStyle.default) {
+//                UIAlertAction in
+//                alert.removeFromParentViewController()
+//            }
+//            alert.addAction(cancelAction)
+//            alert.addAction(DoNotShowAgainAction)
+//
+//            self.present(alert, animated: true, completion: nil)
+//
+//        }
+//    }
+//
+//    override func viewWillAppear(_ animated: Bool) {
+//        super.viewWillAppear(animated)
+//        Smart4SUREScheduledActivityManager.sharedManager.delegate = self
+//    }
+
+
+//Then add them as subViews in the viewDidLoad method and set some constraints.
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(HostingAppViewController.keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(HostingAppViewController.keyboardDidHide), name: NSNotification.Name.UIKeyboardDidHide, object: nil)
-        //NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChangeFrame:"), name: UIKeyboardWillChangeFrameNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(HostingAppViewController.keyboardDidChangeFrame(_:)), name: NSNotification.Name.UIKeyboardDidChangeFrame, object: nil)
+        prepareForKeyboardChangeNotification()
+
+        view.addSubview(myTextField)
+        myTextField.widthAnchor.constraint(equalToConstant: 250).isActive = true
+        myTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        NSLayoutConstraint(item: myTextField, attribute: .centerX, relatedBy: .equal, toItem: view, attribute: .centerX, multiplier: 1, constant: 0).isActive = true
+        NSLayoutConstraint(item: myTextField, attribute: .centerY, relatedBy: .equal, toItem: view, attribute: .centerY, multiplier: 1, constant: -100).isActive = true
+
+        view.addSubview(myLabel)
+        myLabel.widthAnchor.constraint(equalToConstant: 250).isActive = true
+        myLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        NSLayoutConstraint(item: myLabel, attribute: .centerX, relatedBy: .equal, toItem: view, attribute: .centerX, multiplier: 1, constant: 0).isActive = true
+        NSLayoutConstraint(item: myLabel, attribute: .centerY, relatedBy: .equal, toItem: view, attribute: .centerY, multiplier: 1, constant: 0).isActive = true
+
+
+        view.addSubview(myButton)
+        myButton.widthAnchor.constraint(equalToConstant: 250).isActive = true
+        myButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        NSLayoutConstraint(item: myButton, attribute: .centerX, relatedBy: .equal, toItem: view, attribute: .centerX, multiplier: 1, constant: 0).isActive = true
+        NSLayoutConstraint(item: myButton, attribute: .top, relatedBy: .equal, toItem: myTextField, attribute: .bottom, multiplier: 1, constant: 10).isActive = true
+
+    //This sets the function for when the button is pressed
+        myButton.addTarget(self, action: #selector(HostingAppViewController.myButtonPressed), for: .touchUpInside)
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
+    //Add code here to when the button is pressed
+        @objc func myButtonPressed() {
+
+        myLabel.text = myTextField.text
+
     }
     
-    @IBAction func dismiss() {
-        for view in self.view.subviews {
-            if let inputView = view as? UITextField {
-                inputView.resignFirstResponder()
-            }
+    func prepareForKeyboardChangeNotification() {
+        NotificationCenter.default.addObserver(self, selector: #selector(changeInputMode), name: .UITextInputCurrentInputModeDidChange, object: nil)
+    }
+    
+//    override var textInputMode: UITextInputMode? {
+//        // Let's force a German keyboard if one exists
+//
+//        return super.textInputMode
+//    }
+
+
+    @objc
+    func changeInputMode(notification: NSNotification) {
+        for textInputMode in UITextInputMode.activeInputModes {
+                       
+
+          let identifier = textInputMode.perform(NSSelectorFromString("identifier"))?.takeUnretainedValue() as? String
+            
+            
+            let searchString = "edu."
+            let predicate = NSPredicate(format: "isDisplayed = YES", searchString)
+            let searchDataSource = identifier?.filter { predicate.evaluate(with: $0) }
+            
+            print(searchDataSource)
         }
     }
-    
-    var startTime: TimeInterval?
-    var firstHeightTime: TimeInterval?
-    var secondHeightTime: TimeInterval?
-    var referenceHeight: CGFloat = 216
-    
-    @objc func keyboardWillShow() {
-        if startTime == nil {
-            startTime = CACurrentMediaTime()
-        }
-    }
-    
-    @objc func keyboardDidHide() {
-        startTime = nil
-        firstHeightTime = nil
-        secondHeightTime = nil
-        
-        self.stats?.text = "(Waiting for keyboard...)"
-    }
-    
-    @objc func keyboardDidChangeFrame(_ notification: Notification) {
-      
-      if let userInfo = notification.userInfo
-      {
-        if let frameEnd = (userInfo[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue
-        {
-          if frameEnd.height == referenceHeight {
-            if firstHeightTime == nil {
-                firstHeightTime = CACurrentMediaTime()
+
                 
-                if let startTime = self.startTime {
-                    if let firstHeightTime = self.firstHeightTime {
-                        let formatString = NSString(format: "First: %.2f, Total: %.2f", (firstHeightTime - startTime), (firstHeightTime - startTime))
-                        self.stats?.text = formatString as String
-                    }
-                }
-            }
-        }
-        else if frameEnd.height != 0 {
-            if secondHeightTime == nil {
-                secondHeightTime = CACurrentMediaTime()
+                
+//                .primaryLanguage,
+//            primaryLanguage.starts(with: "es-US") {
+//            print("Keyboard selected!")
+//          }
+//          else {
+//            print("Keyboard not selected!")
+//          }
+//        }
+//
+//    }
+    
+//    @objc func keyBoardChanged(_ notification: NSNotification){
+//      if let identifier = textField.textInputMode?.perform(NSSelectorFromString("identifier"))?.takeUnretainedValue() as? String{
+//          if identifier == "YOUR APP IDENTIFIER"{
+//              //Do Whatever you required :)
+//          }
+//      }
+//   }
 
-                if let startTime = self.startTime {
-                    if let firstHeightTime = self.firstHeightTime {
-                        if let secondHeightTime = self.secondHeightTime {
-                            let formatString = NSString(format: "First: %.2f, Second: %.2f, Total: %.2f", (firstHeightTime - startTime), (secondHeightTime - firstHeightTime), (secondHeightTime - startTime))
-                            self.stats?.text = formatString as String
-                        }
-                    }
-                }
-            }
-        }
-    }
-      }
-}
+
+
+
 }
